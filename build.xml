@@ -6,7 +6,7 @@
 	<!-- XSD or WSDL -->
 	<property name="schema.type" value="XSD" />
 	<!-- Filename is expected to be package qualified name -->
-	<property name="package.qualifier" value="CR_INT253_Canada_ACH_Payments_By_Payment_Message_ID" />
+	<property name="package.qualifier" value="XSD or WSDL file name without extension (avoid spaces and special chars, underscore and dashes are okay)" />
 
 	<!-- No need to overwrite the below values -->
 	<property name="package.loc" location="src/com/allytopic/workday/webservices" />
