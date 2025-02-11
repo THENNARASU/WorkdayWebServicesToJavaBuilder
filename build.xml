@@ -1,0 +1,122 @@
+<project name="WorkdayWebServicesToJavaBuilder" default="dist-wsdl" basedir=".">
+	<description>
+  	WorkdayWebServicesToJavaBuilder
+  </description>
+
+	<!-- XSD or WSDL -->
+	<property name="schema.type" value="XSD" />
+	<!-- Filename is expected to be package qualified name -->
+	<property name="package.qualifier" value="CR_INT253_Canada_ACH_Payments_By_Payment_Message_ID" />
+
+	<!-- No need to overwrite the below values -->
+	<property name="package.loc" location="src/com/allytopic/workday/webservices" />
+	<property name="package.name" value="com.allytopic.workday.webservices" />
+	<property name="src" location="src" />
+	<property name="build" location="build" />
+	<property name="dist" location="dist" />
+	<property name="lib" location="lib" />
+
+	<!-- set global properties for this build -->
+	<property name="jdk.dir" location="/usr/lib/jvm/java-11-openjdk-amd64" />
+	<property name="ant.build.javac.source" value="1.8" />
+	<property name="ant.build.javac.target" value="1.8" />
+
+	<path id="3rd-party-classpath">
+		<fileset dir="${lib}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<target name="clean" description="clean up">
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}" />
+		<delete file="${dist}/${package.qualifier}.jar" failonerror="false" />
+		<delete includeemptydirs="true" failonerror="false">
+			<fileset dir="${package.loc}" includes="**/*" />
+		</delete>
+	</target>
+
+	<target name="init" depends="clean">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}" />
+		<mkdir dir="${package.loc}/${package.qualifier}" />
+	</target>
+
+	<!-- Generates the source code from the schema using jaxb -->
+	<target name="generate-xsd" description="Generates the source code" depends="init">
+		<exec executable="/usr/bin/xjc">
+			<arg value="-extension" />
+			<arg value="-d" />
+			<arg value="${src}" />
+			<arg value="-p" />
+			<arg value="${package.name}.${package.qualifier}" />
+			<arg value="XSD/${package.qualifier}.xsd" />
+			<!-- 
+			Bindings not including xmlrootelements properly for XSD
+			<arg value="-b" />
+			<arg value="XSD/bindings_xjc.xml" /> 
+			-->
+		</exec>
+	</target>
+
+	<target name="generate-wsdl" description="Generates the source code" depends="init">
+		<exec executable="/usr/bin/xjc">
+			<arg value="-extension" />
+			<arg value="-wsdl" />
+			<arg value="-d" />
+			<arg value="${src}" />
+			<arg value="-p" />
+			<arg value="${package.name}.${package.qualifier}" />
+			<arg value="WSDL/${package.qualifier}.wsdl" />
+			<arg value="-b" />
+			<arg value="WSDL/bindings_xjc.xml" />
+		</exec>
+	</target>
+
+	<target name="compile-xsd" depends="generate-xsd" description="compile the source">
+		<!-- Compile the Java code from ${src} into ${build} -->
+		<javac includeantruntime="false" srcdir="${src}" destdir="${build}">
+			<classpath refid="3rd-party-classpath" />
+		</javac>
+	</target>
+
+	<target name="compile-wsdl" depends="generate-wsdl" description="compile the source">
+		<!-- Compile the Java code from ${src} into ${build} -->
+		<javac includeantruntime="false" srcdir="${src}" destdir="${build}">
+			<classpath refid="3rd-party-classpath" />
+		</javac>
+	</target>
+
+	<target name="dist-xsd" depends="compile-xsd" description="generate the distribution">
+		<!-- Create the distribution directory -->
+		<mkdir dir="${dist}" />
+
+		<!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+		<jar jarfile="${dist}/${package.qualifier}.jar" basedir="${build}" />
+
+		<delete includeemptydirs="true" failonerror="false">
+			<fileset dir="${package.loc}" includes="**/*" />
+		</delete>
+
+		<delete dir="${build}" />
+
+	</target>
+
+	<target name="dist-wsdl" depends="compile-wsdl" description="generate the distribution">
+		<!-- Create the distribution directory -->
+		<mkdir dir="${dist}" />
+
+		<!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+		<jar jarfile="${dist}/${package.qualifier}.jar" basedir="${build}" />
+
+		<delete includeemptydirs="true" failonerror="false">
+			<fileset dir="${package.loc}" includes="**/*" />
+		</delete>
+
+		<delete dir="${build}" />
+
+	</target>
+
+</project>
